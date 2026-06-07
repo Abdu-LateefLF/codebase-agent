@@ -1,0 +1,3 @@
+[submodule "repository/gate-scale"]
+	path = repository/gate-scale
+	url = https://github.com/Abdu-LateefLF/gatescale.git
