@@ -5,6 +5,7 @@ import listFilesTool from "./tools/listFiles";
 import readFileTool from "./tools/readFile";
 import searchTool from "./tools/search";
 import { SYSTEM_PROMPT } from "./prompts";
+import z from "zod";
 import "dotenv/config";
 
 if (!process.env.GOOGLE_API_KEY) {
@@ -19,10 +20,17 @@ const model = new ChatGoogleGenerativeAI({
     maxOutputTokens: 2000,
 });
 
+const responseSchema = z.object({
+    answer: z.string(),
+    confidence: z.number().min(1).max(10),
+    filesConsulted: z.array(z.string()).min(0),
+});
+
 const agent = createAgent({
     systemPrompt: SYSTEM_PROMPT,
     model: model,
     tools: [listFilesTool, readFileTool, searchTool],
+    responseFormat: responseSchema,
 });
 
 export default agent;
