@@ -26,10 +26,14 @@ const responseSchema = z.object({
     filesConsulted: z.array(z.string()).min(0),
 });
 
+const checkpointer = new MemorySaver();
+
 const agent = createAgent({
     systemPrompt: SYSTEM_PROMPT,
     model: model,
     tools: [listFilesTool, readFileTool, searchTool],
+    // middleware: [modelRetryMiddleware({ maxRetries: 2 })],
+    checkpointer: checkpointer,
     responseFormat: responseSchema,
 });
 

@@ -22,6 +22,8 @@ async function main() {
                     messages: [{ role: "user", content: userInput }],
                 },
                 {
+                    recursionLimit: 30,
+                    configurable: { thread_id: "1" },
                     callbacks: [
                         {
                             handleToolStart(tool, input) {
@@ -30,12 +32,18 @@ async function main() {
                                     input,
                                 );
                             },
+                            handleToolEnd(output, runId) {
+                                console.log(
+                                    `Tool with ID "${runId}" finished with output:`,
+                                    output,
+                                );
+                            },
                         },
                     ],
                 },
             );
 
-            console.dir(response, { depth: null });
+            console.dir(response.structuredResponse, { depth: null });
         } catch (error) {
             console.error("Error:", error);
         }

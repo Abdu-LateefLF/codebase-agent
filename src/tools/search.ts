@@ -43,7 +43,7 @@ async function searchInFile(
     const matches: MatchedLine[] = [];
 
     for await (const line of fileHandle.readLines()) {
-        if (line.includes(query)) {
+        if (line.toLowerCase().includes(query.toLowerCase())) {
             foundMatch = true;
             matches.push({
                 lineNumber: currentLine,
@@ -73,8 +73,7 @@ const searchInputSchema = z.object({
 
 const searchTool = tool(searchFunction, {
     name: "search_codebase",
-    description:
-        "Searches files for a specific string or pattern in the codebase.",
+    description: "Searches files for a specific string in the codebase.",
     schema: searchInputSchema,
 });
 
