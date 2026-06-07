@@ -1,4 +1,4 @@
-import { createAgent, modelRetryMiddleware } from "langchain";
+import { createAgent } from "langchain";
 import { MemorySaver } from "@langchain/langgraph";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import listFilesTool from "./tools/listFiles";
@@ -23,7 +23,7 @@ const model = new ChatGoogleGenerativeAI({
 const responseSchema = z.object({
     answer: z.string(),
     confidence: z.number().min(1).max(10),
-    filesConsulted: z.array(z.string()).min(0),
+    filesConsulted: z.array(z.string()).optional(),
 });
 
 const checkpointer = new MemorySaver();
@@ -32,7 +32,6 @@ const agent = createAgent({
     systemPrompt: SYSTEM_PROMPT,
     model: model,
     tools: [listFilesTool, readFileTool, searchTool],
-    // middleware: [modelRetryMiddleware({ maxRetries: 2 })],
     checkpointer: checkpointer,
     responseFormat: responseSchema,
 });

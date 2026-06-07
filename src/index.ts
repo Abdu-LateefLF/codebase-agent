@@ -1,5 +1,7 @@
 import agent from "./agent";
 import readline from "readline/promises";
+import { LangChainTracer } from "@langchain/core/tracers/tracer_langchain";
+import "dotenv/config";
 
 async function main() {
     const rl = readline.createInterface({
@@ -8,6 +10,8 @@ async function main() {
     });
 
     console.log("Welcome to the Codebase Agent! Type 'exit' to quit.");
+
+    const tracer = new LangChainTracer();
 
     while (true) {
         const userInput = await rl.question("You: ");
@@ -22,20 +26,23 @@ async function main() {
                     messages: [{ role: "user", content: userInput }],
                 },
                 {
-                    recursionLimit: 30,
+                    recursionLimit: 50,
                     configurable: { thread_id: "1" },
                     callbacks: [
+                        tracer,
                         {
-                            handleToolStart(tool, input) {
+                            handleToolStart(
+                                tool,
+                                input,
+                                runId,
+                                parentRunId,
+                                tags,
+                                metadata,
+                                runName,
+                                toolCallId,
+                            ) {
                                 console.log(
-                                    `Tool "${tool.name}" started with input:`,
-                                    input,
-                                );
-                            },
-                            handleToolEnd(output, runId) {
-                                console.log(
-                                    `Tool with ID "${runId}" finished with output:`,
-                                    output,
+                                    `TOOL ${runName} run with input ${input}`,
                                 );
                             },
                         },
@@ -43,7 +50,7 @@ async function main() {
                 },
             );
 
-            console.dir(response.structuredResponse, { depth: null });
+            console.log(response.structuredResponse, { depth: null });
         } catch (error) {
             console.error("Error:", error);
         }
